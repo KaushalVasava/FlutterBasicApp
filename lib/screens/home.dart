@@ -13,8 +13,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final noteList = Note.noteList();
   List<Note> foundList = [];
-  final _todoController = TextEditingController();
-
+  final _noteController = TextEditingController();
+  final _searchController = TextEditingController();
   @override
   void initState() {
     foundList = noteList;
@@ -24,67 +24,16 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white70,
+      backgroundColor: const Color(0xEAFFFFFF),
       appBar: buildAppBar(),
       body: Stack(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
-              children: [searchBox(), listView()],
+              children: [searchBox(), listView(), bottomTextAndButton()],
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    margin:
-                        const EdgeInsets.only(bottom: 16, right: 16, left: 16),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                            color: Colors.grey,
-                            offset: Offset(0.0, 0.0),
-                            blurRadius: 10.0,
-                            spreadRadius: 0.0)
-                      ],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: TextField(
-                      controller: _todoController,
-                      decoration: InputDecoration(
-                        hintText: "Add new note",
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 16, right: 16),
-                  child: ElevatedButton(
-                    child: Text(
-                      '+',
-                      style: TextStyle(
-                        fontSize: 40,
-                      ),
-                    ),
-                    onPressed: () {
-                      _addToDoItem(_todoController.text);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      disabledBackgroundColor: Colors.green,
-                      minimumSize: Size(60, 60),
-                      elevation: 10,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
         ],
       ),
     );
@@ -102,6 +51,12 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _clearQuery(){
+    setState(() {
+      foundList = noteList;
+    });
+    _searchController.clear();
+  }
   void _addToDoItem(String title) {
     setState(() {
       noteList.add(Note(
@@ -110,7 +65,7 @@ class _HomeState extends State<Home> {
       ));
     });
     // for clear text field
-    _todoController.clear();
+    _noteController.clear();
   }
 
   void _runFilter(String query) {
@@ -131,15 +86,13 @@ class _HomeState extends State<Home> {
   AppBar buildAppBar() {
     return AppBar(
       backgroundColor: Colors.green,
-      title: Row(
+      title: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.menu,
-            color: Colors.black,
-            size: 30,
+          Text(
+            "Notes",
+            style: TextStyle(fontSize: 20),
           ),
-          Icon(Icons.settings, color: Colors.black, size: 30)
         ],
       ),
     );
@@ -150,10 +103,10 @@ class _HomeState extends State<Home> {
         child: ListView(
       children: [
         Container(
-          margin: EdgeInsets.only(top: 24, bottom: 16),
-          child: Text(
+          margin: const EdgeInsets.only(top: 16, bottom: 16),
+          child: const Text(
             "All notes",
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ),
         for (Note note in foundList)
@@ -168,23 +121,83 @@ class _HomeState extends State<Home> {
 
   Widget searchBox() {
     return Container(
-      margin: EdgeInsets.only(top: 16),
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: Colors.white54, borderRadius: BorderRadius.circular(20)),
+          color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: TextField(
+        controller: _searchController,
+        textAlignVertical: TextAlignVertical.center,
         onChanged: (value) => _runFilter(value),
         decoration: InputDecoration(
-            contentPadding: EdgeInsets.all(0),
-            prefixIcon: Icon(
-              Icons.search,
-              color: Colors.black,
-              size: 20,
+          contentPadding: const EdgeInsets.all(0),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: Colors.black,
+            size: 20,
+          ),
+          prefixIconConstraints: const BoxConstraints(maxHeight: 20, minWidth: 25),
+          border: InputBorder.none,
+          hintText: "Search notes",
+          hintStyle: const TextStyle(color: Colors.grey),
+          suffixIcon: IconButton(
+              onPressed: _clearQuery,
+              icon: const Icon(Icons.close, color: Colors.grey, size: 20)),
+        ),
+      ),
+    );
+  }
+
+  Widget bottomTextAndButton() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16, right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                      color: Colors.grey,
+                      offset: Offset(0.0, 0.0),
+                      blurRadius: 10.0,
+                      spreadRadius: 0.0)
+                ],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextField(
+                controller: _noteController,
+                decoration: const InputDecoration(
+                  hintText: "Add new note",
+                  border: InputBorder.none,
+                ),
+              ),
             ),
-            prefixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 25),
-            border: InputBorder.none,
-            hintText: "Search notes",
-            hintStyle: TextStyle(color: Colors.grey)),
+          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: ElevatedButton(
+              onPressed: () {
+                _addToDoItem(_noteController.text);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                minimumSize: const Size(60, 60),
+                elevation: 10,
+                shape: const CircleBorder(),
+              ),
+              child: const Text(
+                '+',
+                style: TextStyle(
+                  fontSize: 25,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
