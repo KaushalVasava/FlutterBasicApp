@@ -1,6 +1,6 @@
-# basic_app
+# Basic Note App
 
-A new Flutter project.
+It is a simple flutter app using navigation, Flutter widgets.
 
 ## Getting Started
 
